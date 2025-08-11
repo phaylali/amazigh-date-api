@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const path = require('path');
 const fs = require('fs');
+const https = require('https');
 
 // Serve favicon
 app.use('/favicon.ico', express.static(path.join(__dirname, 'public', 'favicon.svg')));
@@ -19,7 +20,30 @@ function toTifinaghNumeral(number) {
     .join('');
 }
 
-function getAmazighDate(date, useTifinagh, calendar) {
+function makeApiRequest(url) {
+  return new Promise((resolve, reject) => {
+    https.get(url, (res) => {
+      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+        return makeApiRequest(res.headers.location).then(resolve).catch(reject);
+      }
+      let data = '';
+      res.on('data', (chunk) => {
+        data += chunk;
+      });
+      res.on('end', () => {
+        try {
+          resolve(JSON.parse(data));
+        } catch (e) {
+          reject(e);
+        }
+      });
+    }).on('error', (err) => {
+      reject(err);
+    });
+  });
+}
+
+async function getAmazighDate(date, useTifinagh, calendar) {
   const moroccoTime = new Intl.DateTimeFormat('en-GB', {
     timeZone: 'Africa/Casablanca',
     hour12: false,
@@ -32,73 +56,141 @@ function getAmazighDate(date, useTifinagh, calendar) {
   }).format(date);
 
   const dateParts = moroccoTime.split(', ');
-  const datePart = dateParts[0].split('/');
   const timePart = dateParts[1];
 
-  const gDay = parseInt(datePart[0]);
-  const gMonth = parseInt(datePart[1]) - 1;
-  const gYear = parseInt(datePart[2]);
-  const amazighYear = gYear + 950;
-
+  let day, month, year;
   let calendarData;
-  let year;
 
-  switch (calendar) {
-    case 'gregorian':
-      calendarData = gregorianCalendar;
-      year = gYear;
-      break;
-    case 'islamic':
-      calendarData = islamicCalendar;
-      // This is a placeholder for Islamic year calculation
-      year = 1445;
-      break;
-    default:
-      calendarData = amazighCalendar;
-      year = amazighYear;
-      break;
+  const gYear = date.getFullYear();
+
+  if (calendar === 'amazigh') {
+    const julianDate = new Date(date);
+    julianDate.setDate(date.getDate() - 13);
+    day = julianDate.getDate();
+    month = julianDate.getMonth();
+    year = gYear + 950;
+    calendarData = amazighCalendar;
+    const monthData = calendarData[month];
+    return {
+      calendar: calendar,
+      day: useTifinagh ? toTifinaghNumeral(day) : day,
+      monthNumber: useTifinagh ? toTifinaghNumeral(month + 1) : month + 1,
+      monthNameLatin: monthData.latin,
+      monthNameTifinagh: monthData.tifinagh,
+      monthNameArabic: monthData.arabic,
+      year: useTifinagh ? toTifinaghNumeral(year) : year,
+      timeInMorocco: useTifinagh
+        ? timePart
+            .split(':')
+            .map(n => toTifinaghNumeral(n))
+            .join(':')
+        : timePart
+    };
+  } else if (calendar === 'gregorian') {
+    day = date.getDate();
+    month = date.getMonth();
+    year = gYear;
+    calendarData = gregorianCalendar;
+    const monthData = calendarData[month];
+    return {
+      calendar: calendar,
+      day: useTifinagh ? toTifinaghNumeral(day) : day,
+      monthNumber: useTifinagh ? toTifinaghNumeral(month + 1) : month + 1,
+      monthNameLatin: monthData.latin,
+      monthNameTifinagh: monthData.tifinagh,
+      monthNameArabic: monthData.arabic,
+      year: useTifinagh ? toTifinaghNumeral(year) : year,
+      timeInMorocco: useTifinagh
+        ? timePart
+            .split(':')
+            .map(n => toTifinaghNumeral(n))
+            .join(':')
+        : timePart
+    };
+  } else if (calendar === 'islamic') {
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    const formattedDate = `${day}-${month}-${year}`;
+    const apiUrl = `https://api.aladhan.com/v1/timingsByCity/${formattedDate}?city=Casablanca&country=Morocco&method=2`;
+
+    const islamicDateData = await makeApiRequest(apiUrl);
+
+    const hijriDate = islamicDateData.data.date.hijri.date;
+    const [islamicDay, islamicMonth, islamicYear] = hijriDate.split('-');
+    
+    const monthData = islamicCalendar[parseInt(islamicMonth) - 1];
+
+    return {
+      calendar: calendar,
+      day: useTifinagh ? toTifinaghNumeral(parseInt(islamicDay)) : parseInt(islamicDay),
+      monthNumber: useTifinagh ? toTifinaghNumeral(parseInt(islamicMonth)) : parseInt(islamicMonth),
+      monthNameLatin: monthData.latin,
+      monthNameTifinagh: monthData.tifinagh,
+      monthNameArabic: monthData.arabic,
+      year: useTifinagh ? toTifinaghNumeral(parseInt(islamicYear)) : parseInt(islamicYear),
+      timeInMorocco: useTifinagh
+        ? timePart
+            .split(':')
+            .map(n => toTifinaghNumeral(n))
+            .join(':')
+        : timePart
+    };
   }
-
-  const monthData = calendarData[gMonth];
-
-  return {
-    calendar: calendar,
-    day: useTifinagh ? toTifinaghNumeral(gDay) : gDay,
-    monthNumber: useTifinagh ? toTifinaghNumeral(gMonth + 1) : gMonth + 1,
-    monthNameLatin: monthData.latin,
-    monthNameTifinagh: monthData.tifinagh,
-    monthNameArabic: monthData.arabic,
-    year: useTifinagh ? toTifinaghNumeral(year) : year,
-    timeInMorocco: useTifinagh
-      ? timePart
-          .split(':')
-          .map(n => toTifinaghNumeral(n))
-          .join(':')
-      : timePart
-  };
 }
 
-app.get('/api/time', (req, res) => {
+app.get('/api/time', async (req, res) => {
   const useTifinagh = req.query.numerals === 'tifinagh';
-  const calendar = req.query.calendar || 'amazigh';
-  const date = getAmazighDate(new Date(), useTifinagh, calendar);
-  res.json(date);
+  const calendar = req.query.calendar;
+
+  try {
+    if (calendar) {
+      const date = await getAmazighDate(new Date(), useTifinagh, calendar);
+      res.json(date);
+    } else {
+      const amazighDate = await getAmazighDate(new Date(), useTifinagh, 'amazigh');
+      const gregorianDate = await getAmazighDate(new Date(), useTifinagh, 'gregorian');
+      const islamicDate = await getAmazighDate(new Date(), useTifinagh, 'islamic');
+      res.json({
+        amazigh: amazighDate,
+        gregorian: gregorianDate,
+        islamic: islamicDate
+      });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch date' });
+  }
 });
 
-app.get('/api/times', (req, res) => {
+app.get('/api/times', async (req, res) => {
   const useTifinagh = req.query.numerals === 'tifinagh';
-  const calendar = req.query.calendar || 'amazigh';
+  const calendar = req.query.calendar;
   let days = parseInt(req.query.days) || 1;
   if (days > 30) {
     days = 30;
   }
   const dates = [];
-  for (let i = 0; i < days; i++) {
-    const date = new Date();
-    date.setDate(date.getDate() + i);
-    dates.push(getAmazighDate(date, useTifinagh, calendar));
+  try {
+    for (let i = 0; i < days; i++) {
+      const date = new Date();
+      date.setDate(date.getDate() + i);
+      if (calendar) {
+        dates.push(await getAmazighDate(date, useTifinagh, calendar));
+      } else {
+        const amazighDate = await getAmazighDate(date, useTifinagh, 'amazigh');
+        const gregorianDate = await getAmazighDate(date, useTifinagh, 'gregorian');
+        const islamicDate = await getAmazighDate(date, useTifinagh, 'islamic');
+        dates.push({
+          amazigh: amazighDate,
+          gregorian: gregorianDate,
+          islamic: islamicDate
+        });
+      }
+    }
+    res.json(dates);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch dates' });
   }
-  res.json(dates);
 });
 
 // Health check endpoint

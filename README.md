@@ -6,7 +6,7 @@ A minimal, open-source API that provides the current Amazigh (Berber) calendar d
 
 ## 🔗 API Endpoints
 
-### Single Date
+### All Calendars
 
 ```
 GET /api/time
@@ -15,6 +15,17 @@ GET /api/time
 Example:
 ```
 https://your-vercel-url.vercel.app/api/time
+```
+
+### Single Calendar
+
+```
+GET /api/time?calendar=[calendar_name]
+```
+
+Example:
+```
+https://your-vercel-url.vercel.app/api/time?calendar=amazigh
 ```
 
 ### Multiple Dates
@@ -35,53 +46,131 @@ https://your-vercel-url.vercel.app/api/times?days=5
 | Parameter | Type | Description |
 |---|---|---|
 | numerals | string | Optional. Set to `tifinagh` for Tifinagh digits |
-| days | number | Optional. Number of dates to return (max 30) |
-| calendar | string | Optional. Set to `gregorian` or `islamic` to get the date in that calendar. Default is `amazigh` |
+| days | number | Optional. Number of dates to return (max 30) for the `/api/times` endpoint. |
+| calendar | string | Optional. Set to `gregorian` or `islamic` to get the date in that calendar. If this parameter is not set, all calendars are returned. |
 
 ---
 
 ## 🧾 Example Response
 
-### Default Output (`?calendar=amazigh&numerals=latin`)
+### All Calendars (`/api/time`)
+```json
+{
+  "amazigh": {
+    "calendar": "amazigh",
+    "day": 29,
+    "monthNumber": 7,
+    "monthNameLatin": "Yulyuz",
+    "monthNameTifinagh": "ⵢⵓⵍⵢⵓⵣ",
+    "monthNameArabic": "يوليوز",
+    "year": 2975,
+    "timeInMorocco": "10:30:21"
+  },
+  "gregorian": {
+    "calendar": "gregorian",
+    "day": 11,
+    "monthNumber": 8,
+    "monthNameLatin": "August",
+    "monthNameTifinagh": "ⵓⴳⵓⵛⵜ",
+    "monthNameArabic": "غشت",
+    "year": 2025,
+    "timeInMorocco": "10:30:21"
+  },
+  "islamic": {
+    "calendar": "islamic",
+    "day": 1,
+    "monthNumber": 1,
+    "monthNameLatin": "Muharram",
+    "monthNameTifinagh": "ⵎⵓⵃⴰⵔⵔⴰⵎ",
+    "monthNameArabic": "المحرّم",
+    "year": 1445,
+    "timeInMorocco": "10:30:21"
+  }
+}
+```
+
+### Single Calendar (`/api/time?calendar=amazigh&numerals=latin`)
 ```json
 {
   "calendar": "amazigh",
-  "day": 7,
-  "monthNumber": 8,
-  "monthNameLatin": "ɣuct",
-  "monthNameTifinagh": "ⵖⵓⵛⵜ",
-  "monthNameArabic": "غشت",
+  "day": 29,
+  "monthNumber": 7,
+  "monthNameLatin": "Yulyuz",
+  "monthNameTifinagh": "ⵢⵓⵍⵢⵓⵣ",
+  "monthNameArabic": "يوليوز",
   "year": 2975,
   "timeInMorocco": "10:30:21"
 }
 ```
 
-### Tifinagh Numerals Output (`?calendar=amazigh&numerals=tifinagh`)
+### Multiple Dates (`/api/times?days=2`)
 ```json
-{
-  "calendar": "amazigh",
-  "day": "ⵏ",
-  "monthNumber": "ⵜ",
-  "monthNameLatin": "ɣuct",
-  "monthNameTifinagh": "ⵖⵓⵛⵜ",
-  "monthNameArabic": "غشت",
-  "year": "ⵍⵛⵛⵔ",
-  "timeInMorocco": "ⴻⵉ:ⵎⵣ:ⵉⵣ"
-}
-```
-
-### Gregorian Calendar Output (`?calendar=gregorian`)
-```json
-{
-  "calendar": "gregorian",
-  "day": 7,
-  "monthNumber": 8,
-  "monthNameLatin": "August",
-  "monthNameTifinagh": "ⵓⴳⵓⵛⵜ",
-  "monthNameArabic": "غشت",
-  "year": 2025,
-  "timeInMorocco": "10:30:21"
-}
+[
+  {
+    "amazigh": {
+      "calendar": "amazigh",
+      "day": 29,
+      "monthNumber": 7,
+      "monthNameLatin": "Yulyuz",
+      "monthNameTifinagh": "ⵢⵓⵍⵢⵓⵣ",
+      "monthNameArabic": "يوليوز",
+      "year": 2975,
+      "timeInMorocco": "10:30:21"
+    },
+    "gregorian": {
+      "calendar": "gregorian",
+      "day": 11,
+      "monthNumber": 8,
+      "monthNameLatin": "August",
+      "monthNameTifinagh": "ⵓⴳⵓⵛⵜ",
+      "monthNameArabic": "غشت",
+      "year": 2025,
+      "timeInMorocco": "10:30:21"
+    },
+    "islamic": {
+      "calendar": "islamic",
+      "day": 1,
+      "monthNumber": 1,
+      "monthNameLatin": "Muharram",
+      "monthNameTifinagh": "ⵎⵓⵃⴰⵔⵔⴰⵎ",
+      "monthNameArabic": "المحرّم",
+      "year": 1445,
+      "timeInMorocco": "10:30:21"
+    }
+  },
+  {
+    "amazigh": {
+      "calendar": "amazigh",
+      "day": 30,
+      "monthNumber": 7,
+      "monthNameLatin": "Yulyuz",
+      "monthNameTifinagh": "ⵢⵓⵍⵢⵓⵣ",
+      "monthNameArabic": "يوليوز",
+      "year": 2975,
+      "timeInMorocco": "10:30:21"
+    },
+    "gregorian": {
+      "calendar": "gregorian",
+      "day": 12,
+      "monthNumber": 8,
+      "monthNameLatin": "August",
+      "monthNameTifinagh": "ⵓⴳⵓⵛⵜ",
+      "monthNameArabic": "غشت",
+      "year": 2025,
+      "timeInMorocco": "10:30:21"
+    },
+    "islamic": {
+      "calendar": "islamic",
+      "day": 1,
+      "monthNumber": 1,
+      "monthNameLatin": "Muharram",
+      "monthNameTifinagh": "ⵎⵓⵃⴰⵔⵔⴰⵎ",
+      "monthNameArabic": "المحرّم",
+      "year": 1445,
+      "timeInMorocco": "10:30:21"
+    }
+  }
+]
 ```
 
 ---
