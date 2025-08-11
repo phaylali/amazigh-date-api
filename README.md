@@ -4,50 +4,83 @@ A minimal, open-source API that provides the current Amazigh (Berber) calendar d
 
 ---
 
-## 🔗 API Endpoint
+## 🔗 API Endpoints
+
+### Single Date
 
 ```
-GET /api/date
+GET /api/time
 ```
 
 Example:
 ```
-https://your-vercel-url.vercel.app/api/date
+https://your-vercel-url.vercel.app/api/time
+```
+
+### Multiple Dates
+
+```
+GET /api/times
+```
+
+Example:
+```
+https://your-vercel-url.vercel.app/api/times?days=5
 ```
 
 ---
 
 ## 📥 Query Parameters
 
-| Parameter   | Type     | Description                                       |
-|-------------|----------|---------------------------------------------------|
-| numerals    | string   | Optional. Set to `tifinagh` for Tifinagh digits   |
+| Parameter | Type | Description |
+|---|---|---|
+| numerals | string | Optional. Set to `tifinagh` for Tifinagh digits |
+| days | number | Optional. Number of dates to return (max 30) |
+| calendar | string | Optional. Set to `gregorian` or `islamic` to get the date in that calendar. Default is `amazigh` |
 
 ---
 
 ## 🧾 Example Response
 
-### Default Output (`?numerals=latin`)
+### Default Output (`?calendar=amazigh&numerals=latin`)
 ```json
 {
+  "calendar": "amazigh",
   "day": 7,
   "monthNumber": 8,
-  "monthNameTifinagh": "ⵉⵖⵔⴰⵢⵔ",
-  "gregorianEquivalentMonth": "August",
+  "monthNameLatin": "ɣuct",
+  "monthNameTifinagh": "ⵖⵓⵛⵜ",
+  "monthNameArabic": "غشت",
   "year": 2975,
   "timeInMorocco": "10:30:21"
 }
 ```
 
-### Tifinagh Numerals Output (`?numerals=tifinagh`)
+### Tifinagh Numerals Output (`?calendar=amazigh&numerals=tifinagh`)
 ```json
 {
+  "calendar": "amazigh",
   "day": "ⵏ",
   "monthNumber": "ⵜ",
-  "monthNameTifinagh": "ⵉⵖⵔⴰⵢⵔ",
-  "gregorianEquivalentMonth": "August",
+  "monthNameLatin": "ɣuct",
+  "monthNameTifinagh": "ⵖⵓⵛⵜ",
+  "monthNameArabic": "غشت",
   "year": "ⵍⵛⵛⵔ",
   "timeInMorocco": "ⴻⵉ:ⵎⵣ:ⵉⵣ"
+}
+```
+
+### Gregorian Calendar Output (`?calendar=gregorian`)
+```json
+{
+  "calendar": "gregorian",
+  "day": 7,
+  "monthNumber": 8,
+  "monthNameLatin": "August",
+  "monthNameTifinagh": "ⵓⴳⵓⵛⵜ",
+  "monthNameArabic": "غشت",
+  "year": 2025,
+  "timeInMorocco": "10:30:21"
 }
 ```
 
