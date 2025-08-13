@@ -14,7 +14,7 @@ GET /api/time
 
 Example:
 ```
-https://your-vercel-url.vercel.app/api/time
+https://amazigh-date-api.omniversify.com/api/time
 ```
 
 ### Single Calendar
@@ -25,7 +25,7 @@ GET /api/time?calendar=[calendar_name]
 
 Example:
 ```
-https://your-vercel-url.vercel.app/api/time?calendar=amazigh
+https://amazigh-date-api.omniversify.com/api/time?calendar=amazigh
 ```
 
 ### Multiple Dates
@@ -36,7 +36,7 @@ GET /api/times
 
 Example:
 ```
-https://your-vercel-url.vercel.app/api/times?days=5
+https://amazigh-date-api.omniversify.com/api/times?days=5
 ```
 
 ---
@@ -177,7 +177,7 @@ https://your-vercel-url.vercel.app/api/times?days=5
 
 ## 🕰️ How It Works
 
-- Converts the current Gregorian date into the Amazigh calendar by adding +950 years.
+- Converts the current Gregorian calendar to the Julian calendar by subtracting 13 days, and then from the Julian calendar into the Amazigh calendar by adding +950 years.
 - Time is based on Moroccan Standard Time (Africa/Casablanca timezone).
 - Includes Tifinagh month names and optional digit conversion using IRCAM-style numerals.
 
