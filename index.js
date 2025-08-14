@@ -3,10 +3,12 @@ const app = express();
 const path = require('path');
 const fs = require('fs');
 const https = require('https');
-
+const cors = require('cors');
 // Serve favicon
 app.use('/favicon.ico', express.static(path.join(__dirname, 'public', 'favicon.svg')));
-
+app.use(cors({
+  origin: 'http://localhost:4321'
+}));
 // Load calendar data
 const amazighCalendar = JSON.parse(fs.readFileSync(path.join(__dirname, 'amazighCalendar.json'), 'utf8'));
 const gregorianCalendar = JSON.parse(fs.readFileSync(path.join(__dirname, 'gregorianCalendar.json'), 'utf8'));
