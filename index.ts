@@ -15,6 +15,7 @@ app.use('/*', cors());
 
 // Serve static files
 app.use('/favicon.ico', serveStatic({ path: './public/favicon.svg' }));
+app.use('/public/*', serveStatic({ root: './' }));
 
 // --- Type Definitions ---
 // Re-export or redefine if strictly needed, but imported types are better
@@ -142,7 +143,10 @@ async function getAmazighDate(date: Date, useTifinagh: boolean, calendar: string
         const apiUrl = `https://api.aladhan.com/v1/timingsByCity/${formattedDate}?city=Casablanca&country=Morocco&method=2`;
 
         try {
-            const response = await fetch(apiUrl);
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+            const response = await fetch(apiUrl, { signal: controller.signal });
+            clearTimeout(timeoutId);
             if (!response.ok) {
                 throw new Error('Failed to fetch Islamic date');
             }
@@ -235,7 +239,7 @@ app.get('/api/time', async (c) => {
 
         if (returnHtml) {
             // Render UI
-            const url = new URL(c.req.url);
+            const url = new URL(c.req.url, `http://${c.req.header('host') || 'localhost'}`);
             url.searchParams.set('format', 'json');
 
             const html = createLayout({

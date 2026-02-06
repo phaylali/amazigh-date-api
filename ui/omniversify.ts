@@ -16,8 +16,9 @@ export const OmniversifyTheme = {
         surface: '#0a0a0a',
     },
     fonts: {
-        heading: "'Cinzel', serif",
+        heading: "Cinzel, serif",
         body: "'Source Sans 3', sans-serif",
+        tifinagh: "'Tifinagh', sans-serif",
     },
     spacing: {
         xs: '0.5rem',
@@ -45,6 +46,11 @@ export function generateStyles(): string {
             --white: ${theme.colors.white};
             --white-muted: ${theme.colors.whiteMuted};
             --surface: ${theme.colors.surface};
+        }
+        @font-face {
+            font-family: 'Tifinagh';
+            src: url('/public/tifinagh.ttf') format('truetype');
+            font-display: swap;
         }
         * {
             box-sizing: border-box;
@@ -358,7 +364,7 @@ export function createDateCard(dates: { amazigh?: DateData, gregorian?: DateData
             <div style="font-size: 1.2rem; color: var(--white); margin-bottom: 0.25rem;">
                 ${data.monthNameLatin}
             </div>
-            <div style="font-size: 1rem; color: var(--white-muted); margin-bottom: 1rem; font-family: 'Noto Sans Tifinagh', sans-serif;">
+            <div style="font-size: 1rem; color: var(--white-muted); margin-bottom: 1rem; font-family: ${OmniversifyTheme.fonts.tifinagh};">
                 ${data.monthNameTifinagh} / ${data.monthNameArabic}
             </div>
             <div style="font-size: 1.5rem; color: var(--gold); font-weight: bold;">
