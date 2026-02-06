@@ -2,16 +2,15 @@
   "name": "morocco-time-api",
   "version": "1.0.0",
   "description": "Simple API for Morocco time with Tifinagh support",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
-    "start": "node index.js",
-    "dev": "node index.js"
+    "start": "bun run index.ts",
+    "dev": "bun run --hot index.ts"
   },
   "dependencies": {
-    "cors": "^2.8.5",
-    "express": "^4.18.2"
+    "hono": "^4.0.0"
   },
-  "engines": {
-    "node": "20.x"
+  "devDependencies": {
+    "@types/bun": "latest"
   }
 }
