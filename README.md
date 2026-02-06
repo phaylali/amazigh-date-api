@@ -330,16 +330,15 @@ bun run start
 
 3. **Configure Build Settings**:
    - Framework Preset: `Other`
-   - Build Command: `bun install`
-   - Output Directory: `.`
-   - Install Command: `bun install`
+   - Build Command: Leave empty (uses `vercel.json` config)
+   - Output Directory: Leave empty
+   - Install Command: `bun install` or `npm install`
 
-4. **Add Environment Variables** (if needed):
-   - `PORT`: 3000 (optional, defaults to 3000)
+4. **Deploy**: Click "Deploy" and wait for build to complete
 
-5. **Deploy**: Click "Deploy" and wait for build to complete
+5. **Done!** Your API is live at `https://your-project.vercel.app`
 
-6. **Done!** Your API is live at `https://your-project.vercel.app`
+> **Note**: The app uses Hono's Vercel adapter to run on Vercel's Node.js runtime. All routes are handled through the `/api/index.ts` serverless function.
 
 ### Deploy to Other Platforms
 

@@ -313,7 +313,4 @@ app.get('/api/times', async (c) => {
 const port = parseInt(process.env.PORT || '3000');
 console.log(`Server running on port ${port}`);
 
-export default {
-    port,
-    fetch: app.fetch,
-};
+export default app;
