@@ -1,5 +1,5 @@
 import { Hono, Context } from 'hono';
-import { serveStatic } from 'hono/bun';
+import { serveStatic } from '@hono/node-server/serve-static';
 import { cors } from 'hono/cors';
 import { createLayout, createViewerContainer, createRouteCard, createDateCard, DateData } from './ui/omniversify';
 
@@ -309,8 +309,5 @@ app.get('/api/times', async (c) => {
         return c.json({ error: 'Failed to fetch dates' }, 500);
     }
 });
-
-const port = parseInt(process.env.PORT || '3000');
-console.log(`Server running on port ${port}`);
 
 export default app;
