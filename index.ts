@@ -138,7 +138,7 @@ async function getAmazighDate(date: Date, useTifinagh: boolean, calendar: string
         const d = String(date.getDate()).padStart(2, '0');
         const m = String(date.getMonth() + 1).padStart(2, '0');
         const y = date.getFullYear();
-        const formattedDate = `${d}-${m}-${y}`;
+        const formattedDate = `${y}-${m}-${d}`;
 
         const apiUrl = `https://api.aladhan.com/v1/timingsByCity/${formattedDate}?city=Casablanca&country=Morocco&method=2`;
 
